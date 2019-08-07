@@ -84,7 +84,6 @@ function onEdit()
   if (i == -1)
     return;  
   
-  // TODO: check, if the row is filled completely
   for (var k = j; k < lastColumn; k++) {
     if (rangeValues[i][k] == '')
       return;
