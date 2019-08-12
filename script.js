@@ -55,40 +55,42 @@ function reverse_order()
   sheet.getRange(i+1, 1, dates.length, lastColumn).setValues(dates);
 }
 
-function insert_top_row(i, j, rangeValues)
+function insert_date(i, j, range_values, number_format)
 {
-  if (i != -1 && is_row_empty(rangeValues[i])) {
-    sheet.getRange(i+1, j+1).setValue(new Date());
-  } else {
-    var insert_row = !(i > 0 && is_row_empty(rangeValues[i-1]));
-
-    var number_format = sheet.getRange(i+1, j+1).getNumberFormat();
-    if (insert_row)
-      sheet.insertRowBefore(i+1);
-
+  if (range_values[i][j] == '') {
     sheet.getRange(i+1, j+1).setNumberFormat(number_format);
     sheet.getRange(i+1, j+1).setValue(new Date());
   }
 }
 
-function onEdit()
+function insert_top_empty_row(i, j, rangeValues)
+{                                           
+  var number_format = sheet.getRange(i+1, j+1).getNumberFormat();
+  if (!(i > 0 && is_row_empty(rangeValues[i-1])))
+    sheet.insertRowBefore(i+1);  
+}
+
+function onEdit(e)
 {
   update_all();
   
-  // if the top row with date is filled, add new emtpy row
   var rangeValues = searchRange.getValues();
   var date_occurence = find_date_occurence(rangeValues);
   var i = date_occurence[0];
   var j = date_occurence[1];
-  
+
   if (i == -1)
-    return;  
+    return;
   
-  for (var k = j; k < lastColumn; k++) {
-    if (rangeValues[i][k] == '')
-      return;
-  }
-  insert_top_row(i, j, rangeValues);
+  var range = e.range;
+  var row = range.getRow();
+  var number_format = sheet.getRange(i+1, j+1).getNumberFormat();
+    
+  // quick workaround because if user manually inserts
+  // an empty row, the last row triggers onEdit which
+  // adds date to the row with sum(money)
+  if (row != lastRow)
+    insert_date(row-1, j, rangeValues, number_format);
 }
 
 function onOpen()
@@ -103,10 +105,16 @@ function onOpen()
   var i = date_occurence[0];
   var j = date_occurence[1];
 
-  // if the row with the date is empty, just update the date
-  // otherwise create a new row with current date
-  insert_top_row(i, j, rangeValues);
+  insert_top_empty_row(i, j, rangeValues);
+}
+
+function every_hour_trigger()
+{
+  var rangeValues = searchRange.getValues();
+  var date_occurence = find_date_occurence(rangeValues);
+  var i = date_occurence[0];
+  var j = date_occurence[1];
   
-  return;
+  insert_top_empty_row(i, j, rangeValues);
 }
 
