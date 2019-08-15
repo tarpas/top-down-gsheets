@@ -1,4 +1,4 @@
-var ui = SpreadsheetApp.getUi();
+var ui;
 var ss = SpreadsheetApp.getActiveSpreadsheet();
 var sheet = ss.getActiveSheet();
 var rangeData = sheet.getDataRange();
@@ -95,6 +95,8 @@ function onEdit(e)
 
 function onOpen()
 {
+  update_all();
+
   ui.createMenu('Timesheet tools')
       .addItem('Reverse order', 'reverse_order')
       .addToUi();
