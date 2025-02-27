@@ -63,11 +63,35 @@ function insert_date(i, j, range_values, number_format)
   }
 }
 
+function copy_formulas_from_row3_to_row2() {
+  update_all();
+  
+  // Check if we have at least 3 rows
+  if (lastRow < 3) {
+    return;
+  }
+  
+  // Get formulas from row 3
+  var row3Range = sheet.getRange(3, 1, 1, lastColumn);
+  var row3Formulas = row3Range.getFormulas()[0];
+  
+  // Check each cell in row 3 for formulas
+  for (var col = 0; col < row3Formulas.length; col++) {
+    if (row3Formulas[col] !== '') {
+      // If a formula is found, copy it to the same column in row 2
+      sheet.getRange(2, col + 1).setFormula(row3Formulas[col]);
+    }
+  }
+}
+
 function insert_top_empty_row(i, j, rangeValues)
 {                                           
   var number_format = sheet.getRange(i+1, j+1).getNumberFormat();
-  if (!(i > 0 && is_row_empty(rangeValues[i-1])))
-    sheet.insertRowBefore(i+1);  
+  if (!(i > 0 && is_row_empty(rangeValues[i-1]))) {
+    sheet.insertRowBefore(i+1);
+    // After inserting a row, copy formulas from row 3 to row 2
+    copy_formulas_from_row3_to_row2();
+  }
 }
 
 function onEdit(e)
