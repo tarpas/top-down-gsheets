@@ -78,8 +78,13 @@ function copy_formulas_from_row3_to_row2() {
   // Check each cell in row 3 for formulas
   for (var col = 0; col < row3Formulas.length; col++) {
     if (row3Formulas[col] !== '') {
-      // If a formula is found, copy it to the same column in row 2
-      sheet.getRange(2, col + 1).setFormula(row3Formulas[col]);
+      // Instead of directly copying the formula, we'll use the built-in
+      // Google Sheets functionality to handle reference adjustments
+      var sourceCell = sheet.getRange(3, col + 1);
+      var targetCell = sheet.getRange(2, col + 1);
+      
+      // This will copy the formula with proper reference adjustments
+      sourceCell.copyTo(targetCell, SpreadsheetApp.CopyPasteType.PASTE_FORMULA, false);
     }
   }
 }
